@@ -170,12 +170,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Dev hint */}
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
-              <strong>Akun default admin:</strong><br />
-              Email: <code className="font-mono">admin@unisba.ac.id</code><br />
-              Password: <code className="font-mono">admin123</code>
-            </div>
           </div>
         </div>
       </div>
