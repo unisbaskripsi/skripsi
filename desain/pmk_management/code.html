@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PMK Management - Academic DMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+        /* Custom scrollbar for data tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #CBD5E1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "surface-glass": "rgba(255, 255, 255, 0.7)",
+                        "primary": "#004ac6",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary": "#565e74",
+                        "primary-container": "#2563eb",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-surface": "#2d3133",
+                        "surface-border": "#E2E8F0",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-fixed": "#d3e4fe",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#5e6e85",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface-variant": "#434655",
+                        "surface-tint": "#0053db",
+                        "on-tertiary-container": "#e9f0ff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary": "#46566c",
+                        "on-secondary-container": "#5c647a",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-background": "#191c1e",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "success-green": "#10B981",
+                        "surface-dim": "#d8dadc",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "on-primary-fixed": "#00174b",
+                        "outline": "#737686",
+                        "on-surface": "#191c1e",
+                        "surface-container": "#eceef0",
+                        "surface": "#f7f9fb",
+                        "background": "#f7f9fb",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "warning-amber": "#F59E0B"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "sidebar-width": "260px",
+                        "stack-gap": "12px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-surface-container-lowest border-r border-surface-border shadow-sm flex flex-col py-6 px-4 hidden md:flex z-50">
+<div class="mb-10 px-2">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Academic DMS</h1>
+<p class="font-body-md text-body-md text-secondary">Faculty Portal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-headline-sm text-label-md text-primary font-semibold bg-secondary-container/30 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">description</span>
+                PMK
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">school</span>
+                Skripsi
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+                User Management
+            </a>
+</nav>
+<div class="mt-auto pt-6 border-t border-surface-border space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 w-full md:w-[calc(100%-260px)] h-16 bg-surface-glass backdrop-blur-md border-b border-surface-border flex justify-between items-center px-6 z-40">
+<div class="flex items-center gap-4 flex-1">
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="relative max-w-md w-full hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 pl-10 pr-4 font-body-md text-body-md focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search PMK records..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-secondary">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-secondary">help</span>
+</button>
+<div class="h-8 w-px bg-surface-border mx-2"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right hidden sm:block">
+<p class="font-label-md text-label-md text-on-surface">Dr. Aris Setiawan</p>
+<p class="text-[10px] text-secondary uppercase tracking-wider font-semibold">Faculty Dean</p>
+</div>
+<img class="h-9 w-9 rounded-full object-cover border border-surface-border" data-alt="A professional headshot of a middle-aged academic faculty member with glasses, wearing a formal suit and smiling warmly against a soft-focus office background. The lighting is bright and natural, reflecting a clean, high-fidelity light mode aesthetic consistent with a modern corporate academic portal. High quality portraiture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIyodwtiKUSBEG4_5gals9QWJ50pwGkP59fT4Dh1ULYUcYBKKIrSBEYX4mQFOnWcKsi2Txr2DNnukDSZrXOW3D8gnrnTuqVLljXZSaZUBpk-VkXV7l-RGjMsRzKjbf51SUGxxK2eZZku3OJ3fKj7vNMYzLSFCJYlSV_e3whFZAp2PCoSqdjQzg6jNYBj4WulwK-H2T7xldNk7o9TlPeo6cyMVvZ5v9MzYVlPDUZEBNva__4TBLaTG-i6bIyhdDkJQ6f-zbXqDdZXk"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-12 px-gutter md:ml-[260px] min-h-screen">
+<!-- Header Section -->
+<div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+<div>
+<nav class="flex items-center gap-2 text-outline font-label-sm text-label-sm mb-2">
+<span>Academic</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary">PMK Management</span>
+</nav>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Practice Field Records</h2>
+<p class="font-body-lg text-body-lg text-secondary">Manage and monitor student practice work (PMK) submissions and progress.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-white border border-surface-border rounded-xl p-1 shadow-sm">
+<button class="px-4 py-1.5 rounded-lg bg-surface-container-low font-label-sm text-label-sm text-primary">All Records</button>
+<button class="px-4 py-1.5 rounded-lg hover:bg-surface-container-low font-label-sm text-label-sm text-secondary transition-colors">Pending</button>
+<button class="px-4 py-1.5 rounded-lg hover:bg-surface-container-low font-label-sm text-label-sm text-secondary transition-colors">Approved</button>
+</div>
+</div>
+</div>
+<!-- Toolbar Section -->
+<div class="mb-6 bg-white rounded-xl p-4 border border-surface-border shadow-sm flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-3">
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border-none rounded-xl py-2 pl-4 pr-10 font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>Study Program: All</option>
+<option>Informatika</option>
+<option>Sistem Informasi</option>
+<option>Teknik Elektro</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border-none rounded-xl py-2 pl-4 pr-10 font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>Year: 2024</option>
+<option>2023</option>
+<option>2022</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline">calendar_month</span>
+</div>
+<div class="h-6 w-px bg-surface-border"></div>
+<button class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-surface-container-low font-label-md text-label-md text-secondary transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+                    More Filters
+                </button>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-label-sm text-label-sm text-outline">Showing 48 records</span>
+<div class="h-6 w-px bg-surface-border"></div>
+<button class="p-2 rounded-lg hover:bg-surface-container-low text-secondary">
+<span class="material-symbols-outlined">download</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-surface-container-low text-secondary">
+<span class="material-symbols-outlined">print</span>
+</button>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="bg-white rounded-2xl border border-surface-border shadow-sm overflow-hidden">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-border bg-surface-container-low/50">
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">
+<div class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+                                    Student Name
+                                    <span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+</div>
+</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">NIM</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Study Program</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary text-center">Year</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Project Title</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">PDF Status</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-border font-body-md text-body-md text-on-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-[12px]">AD</div>
+<span class="font-medium">Aditya Dharmawan</span>
+</div>
+</td>
+<td class="px-6 py-4 text-outline">1908561023</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-secondary-container/50 text-on-secondary-container rounded-lg text-[11px] font-bold uppercase tracking-wider">Informatika</span>
+</td>
+<td class="px-6 py-4 text-center">2024</td>
+<td class="px-6 py-4 max-w-xs truncate" title="Analisis Performa Microservices pada Infrastruktur Cloud Hybrid">
+                                Analisis Performa Microservices pada Infrastruktur Cloud Hybrid
+                            </td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-success-green font-medium">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                    Verified
+                                </div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="View">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-2 text-secondary hover:text-warning-amber hover:bg-warning-amber/5 rounded-lg transition-all" title="Edit">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all" title="Delete">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold text-[12px]">RM</div>
+<span class="font-medium">Rina Mahendra</span>
+</div>
+</td>
+<td class="px-6 py-4 text-outline">2008561044</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-secondary-container/50 text-on-secondary-container rounded-lg text-[11px] font-bold uppercase tracking-wider">Informatika</span>
+</td>
+<td class="px-6 py-4 text-center">2024</td>
+<td class="px-6 py-4 max-w-xs truncate">Sistem Pakar Diagnosa Tanaman Padi Berbasis Android</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-warning-amber font-medium">
+<span class="material-symbols-outlined text-[18px]">pending</span>
+                                    Under Review
+                                </div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-secondary hover:text-warning-amber hover:bg-warning-amber/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-[12px]">BP</div>
+<span class="font-medium">Bagus Putu</span>
+</div>
+</td>
+<td class="px-6 py-4 text-outline">1908561001</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-tertiary-container/20 text-tertiary-container rounded-lg text-[11px] font-bold uppercase tracking-wider">Sistem Informasi</span>
+</td>
+<td class="px-6 py-4 text-center">2023</td>
+<td class="px-6 py-4 max-w-xs truncate">Audit Keamanan Informasi Menggunakan Framework COBIT 5</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-success-green font-medium">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                    Verified
+                                </div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-secondary hover:text-warning-amber hover:bg-warning-amber/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-bold text-[12px]">SK</div>
+<span class="font-medium">Siti Komala</span>
+</div>
+</td>
+<td class="px-6 py-4 text-outline">2108561102</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-secondary-container/50 text-on-secondary-container rounded-lg text-[11px] font-bold uppercase tracking-wider">Informatika</span>
+</td>
+<td class="px-6 py-4 text-center">2024</td>
+<td class="px-6 py-4 max-w-xs truncate">Rancang Bangun E-Commerce Berbasis Progressive Web App</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-error font-medium">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+                                    Rejected
+                                </div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-secondary hover:text-warning-amber hover:bg-warning-amber/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-[12px]">DA</div>
+<span class="font-medium">Dewa Agung</span>
+</div>
+</td>
+<td class="px-6 py-4 text-outline">2008561005</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-on-tertiary-fixed-variant/10 text-on-tertiary-fixed-variant rounded-lg text-[11px] font-bold uppercase tracking-wider">Teknik Elektro</span>
+</td>
+<td class="px-6 py-4 text-center">2024</td>
+<td class="px-6 py-4 max-w-xs truncate">Implementasi IoT Pada Monitoring Kualitas Air Tambak</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-warning-amber font-medium">
+<span class="material-symbols-outlined text-[18px]">pending</span>
+                                    Under Review
+                                </div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-secondary hover:text-warning-amber hover:bg-warning-amber/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-secondary hover:text-error hover:bg-error/5 rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-6 py-4 bg-surface-container-low/30 border-t border-surface-border flex items-center justify-between">
+<p class="font-label-sm text-label-sm text-outline">Showing 1 to 5 of 48 records</p>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg border border-surface-border bg-white text-secondary hover:bg-surface-container-low transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-label-sm text-label-sm">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-secondary font-label-sm text-label-sm">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-secondary font-label-sm text-label-sm">3</button>
+<span class="text-outline">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-secondary font-label-sm text-label-sm">10</button>
+<button class="p-2 rounded-lg border border-surface-border bg-white text-secondary hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-8 bottom-8 h-14 w-14 bg-primary text-white rounded-full shadow-lg hover:shadow-primary/30 hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center z-50 group">
+<span class="material-symbols-outlined text-[28px]">add</span>
+<span class="absolute right-full mr-4 bg-inverse-surface text-inverse-on-surface px-3 py-1.5 rounded-lg text-label-sm font-label-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Add New PMK Record</span>
+</button>
+<script>
+        // Simple Micro-interaction for Search Focus
+        const searchInput = document.querySelector('input[type="text"]');
+        const searchIcon = searchInput?.previousElementSibling;
+        
+        searchInput?.addEventListener('focus', () => {
+            searchIcon.classList.add('text-primary');
+        });
+        
+        searchInput?.addEventListener('blur', () => {
+            searchIcon.classList.remove('text-primary');
+        });
+
+        // Hover row effects logic (native CSS covers most, but can add JS triggers here for complex states)
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                // Potential for advanced preview on hover
+            });
+        });
+    </script>
+</body></html>

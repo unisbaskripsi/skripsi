@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Skripsi Management | Academic DMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-primary-fixed-variant": "#003ea8",
+                "on-primary-container": "#eeefff",
+                "surface-glass": "rgba(255, 255, 255, 0.7)",
+                "primary": "#004ac6",
+                "inverse-on-surface": "#eff1f3",
+                "secondary": "#565e74",
+                "primary-container": "#2563eb",
+                "on-tertiary": "#ffffff",
+                "secondary-container": "#dae2fd",
+                "primary-fixed": "#dbe1ff",
+                "inverse-surface": "#2d3133",
+                "surface-border": "#E2E8F0",
+                "on-tertiary-fixed": "#0b1c30",
+                "error-container": "#ffdad6",
+                "surface-container-high": "#e6e8ea",
+                "tertiary-fixed": "#d3e4fe",
+                "secondary-fixed": "#dae2fd",
+                "surface-container-lowest": "#ffffff",
+                "tertiary-container": "#5e6e85",
+                "surface-container-low": "#f2f4f6",
+                "surface-bright": "#f7f9fb",
+                "on-surface-variant": "#434655",
+                "surface-tint": "#0053db",
+                "on-tertiary-container": "#e9f0ff",
+                "on-secondary": "#ffffff",
+                "outline-variant": "#c3c6d7",
+                "on-secondary-fixed-variant": "#3f465c",
+                "on-error-container": "#93000a",
+                "surface-variant": "#e0e3e5",
+                "tertiary": "#46566c",
+                "on-secondary-container": "#5c647a",
+                "surface-container-highest": "#e0e3e5",
+                "on-primary": "#ffffff",
+                "on-secondary-fixed": "#131b2e",
+                "on-background": "#191c1e",
+                "tertiary-fixed-dim": "#b7c8e1",
+                "error": "#ba1a1a",
+                "on-error": "#ffffff",
+                "inverse-primary": "#b4c5ff",
+                "success-green": "#10B981",
+                "surface-dim": "#d8dadc",
+                "primary-fixed-dim": "#b4c5ff",
+                "on-tertiary-fixed-variant": "#38485d",
+                "on-primary-fixed": "#00174b",
+                "outline": "#737686",
+                "on-surface": "#191c1e",
+                "surface-container": "#eceef0",
+                "surface": "#f7f9fb",
+                "background": "#f7f9fb",
+                "secondary-fixed-dim": "#bec6e0",
+                "warning-amber": "#F59E0B"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "gutter": "24px",
+                "sidebar-width": "260px",
+                "stack-gap": "12px",
+                "container-max": "1280px",
+                "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                "headline-md": ["Inter"],
+                "label-sm": ["Inter"],
+                "headline-lg-mobile": ["Inter"],
+                "body-md": ["Inter"],
+                "headline-lg": ["Inter"],
+                "label-md": ["Inter"],
+                "headline-sm": ["Inter"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sidebar-active-gradient {
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0) 100%);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased">
+<!-- SideNavBar (Predicted Component) -->
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-surface-container-lowest dark:bg-surface-container-low border-r border-surface-border dark:border-outline-variant shadow-sm flex flex-col py-6 px-4 z-50">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined !text-[20px]">school</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed leading-none">Academic DMS</h1>
+<p class="text-[10px] uppercase tracking-wider text-secondary mt-1 font-semibold">Faculty Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span>Dashboard</span>
+</div>
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md">
+<span class="material-symbols-outlined mr-3">description</span>
+<span>PMK</span>
+</div>
+<!-- Active Tab: Skripsi -->
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-primary dark:text-primary-fixed font-semibold bg-secondary-container/30 dark:bg-secondary-container/10 transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full w-1 bg-primary"></div>
+<span class="material-symbols-outlined mr-3">school</span>
+<span>Skripsi</span>
+</div>
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md">
+<span class="material-symbols-outlined mr-3">group</span>
+<span>Students</span>
+</div>
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md">
+<span class="material-symbols-outlined mr-3">manage_accounts</span>
+<span>User Management</span>
+</div>
+</nav>
+<div class="mt-auto pt-6 border-t border-surface-border">
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span>Settings</span>
+</div>
+<div class="group flex items-center px-3 py-2.5 rounded-lg text-error hover:bg-error-container/20 transition-colors cursor-pointer active:scale-95 duration-150 font-body-md text-body-md">
+<span class="material-symbols-outlined mr-3">logout</span>
+<span>Logout</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[260px] min-h-screen flex flex-col">
+<!-- TopAppBar (Predicted Component) -->
+<header class="h-16 px-gutter bg-surface-glass backdrop-blur-md border-b border-surface-border flex items-center justify-between sticky top-0 z-40">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-body-md focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Search by NIM, Student Name, or Title..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-surface-variant transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-surface-variant transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-px bg-surface-border mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer p-1 pr-3 rounded-full hover:bg-surface-container-low transition-all">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Professional headshot of a female faculty member with glasses, smiling warmly. She is wearing a modern professional navy blazer over a white shirt. The background is a clean, blurred academic setting with soft natural lighting, conveying a sense of expertise and approachability in a modern light-mode interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOJk7GTC28MA_a2QSPtmQJvAd8rTp1jNN-67bvYNtz4f-SqfFpXAk12upxmv3GR5la7XzjngyBTVmZ7ZKriI7dW2J0dOqAtWzra3nDYbMzQ_8B4eaMRb7AtAFtOUSq-p2TbSok_EYk7RepmHc7DbdSw1h4yqiqfU1QzPGM8HpDsi_NPgKYt5a_Jk1HUm7ChQJHzqCoDilnmbo8IdyT1_IybrDXrecrE1eXyvMqgZQ-m8-pgwN1kNg8DK-1xUNR0i9_P9Nrgr5iP9o"/>
+<div class="hidden lg:block text-right">
+<p class="font-label-md text-label-md text-primary leading-tight">Dr. Sarah Kemuning</p>
+<p class="text-[10px] text-secondary font-medium">Head of Department</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas Content -->
+<div class="p-gutter space-y-6">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-2 text-secondary mb-1">
+<span class="text-label-sm font-label-sm uppercase tracking-widest">Academic Records</span>
+<span class="material-symbols-outlined !text-[14px]">chevron_right</span>
+<span class="text-label-sm font-label-sm uppercase tracking-widest">Thesis Management</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Skripsi Repository</h2>
+<p class="text-body-md text-on-surface-variant max-w-2xl mt-1">Manage, verify, and archive undergraduate thesis submissions across all faculties.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2.5 bg-surface-container-lowest border border-surface-border rounded-lg text-label-md font-label-md flex items-center gap-2 hover:bg-surface-container-low transition-all active:scale-95">
+<span class="material-symbols-outlined !text-[18px]">file_download</span>
+                        Bulk Export
+                    </button>
+<button class="px-4 py-2.5 bg-primary text-on-primary rounded-lg text-label-md font-label-md flex items-center gap-2 hover:bg-primary/90 transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+                        New Submission
+                    </button>
+</div>
+</div>
+<!-- Dashboard Stats Bento (Subtle) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-surface-border shadow-[0px_4px_12px_rgba(0,0,0,0.03)]">
+<p class="text-label-sm font-label-sm text-secondary uppercase tracking-wider mb-1">Total Submissions</p>
+<div class="flex items-end justify-between">
+<h3 class="font-headline-md text-headline-md">1,284</h3>
+<span class="text-success-green text-[12px] font-bold bg-success-green/10 px-1.5 py-0.5 rounded flex items-center gap-0.5 mb-1">
+<span class="material-symbols-outlined !text-[14px]">trending_up</span> 12%
+                        </span>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-surface-border shadow-[0px_4px_12px_rgba(0,0,0,0.03)]">
+<p class="text-label-sm font-label-sm text-secondary uppercase tracking-wider mb-1">Pending Verification</p>
+<div class="flex items-end justify-between">
+<h3 class="font-headline-md text-headline-md">42</h3>
+<span class="text-warning-amber text-[12px] font-bold bg-warning-amber/10 px-1.5 py-0.5 rounded flex items-center gap-0.5 mb-1">
+                            High Priority
+                        </span>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-surface-border shadow-[0px_4px_12px_rgba(0,0,0,0.03)]">
+<p class="text-label-sm font-label-sm text-secondary uppercase tracking-wider mb-1">Verified This Month</p>
+<div class="flex items-end justify-between">
+<h3 class="font-headline-md text-headline-md">156</h3>
+<span class="text-primary text-[12px] font-bold bg-primary/10 px-1.5 py-0.5 rounded flex items-center gap-0.5 mb-1">
+                            Normal
+                        </span>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-surface-border shadow-[0px_4px_12px_rgba(0,0,0,0.03)]">
+<p class="text-label-sm font-label-sm text-secondary uppercase tracking-wider mb-1">Avg. Processing Time</p>
+<div class="flex items-end justify-between">
+<h3 class="font-headline-md text-headline-md">3.2 Days</h3>
+<span class="text-on-surface-variant text-[12px] font-bold bg-surface-container-low px-1.5 py-0.5 rounded flex items-center gap-0.5 mb-1">
+                            -0.4d
+                        </span>
+</div>
+</div>
+</div>
+<!-- Filters Bar -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-border p-3 flex flex-wrap items-center gap-3">
+<div class="flex items-center bg-surface-container-low rounded-lg px-3 py-1.5 gap-2 border border-transparent focus-within:border-primary/30 transition-all">
+<span class="text-label-sm font-label-sm text-secondary">Study Program:</span>
+<select class="bg-transparent border-none text-label-md font-label-md text-on-surface focus:ring-0 p-0 cursor-pointer">
+<option>All Programs</option>
+<option>Informatics</option>
+<option>Information Systems</option>
+<option>Computer Science</option>
+</select>
+</div>
+<div class="flex items-center bg-surface-container-low rounded-lg px-3 py-1.5 gap-2 border border-transparent focus-within:border-primary/30 transition-all">
+<span class="text-label-sm font-label-sm text-secondary">Graduation Year:</span>
+<select class="bg-transparent border-none text-label-md font-label-md text-on-surface focus:ring-0 p-0 cursor-pointer">
+<option>All Years</option>
+<option>2024</option>
+<option>2023</option>
+<option>2022</option>
+</select>
+</div>
+<div class="flex items-center bg-surface-container-low rounded-lg px-3 py-1.5 gap-2 border border-transparent focus-within:border-primary/30 transition-all">
+<span class="text-label-sm font-label-sm text-secondary">Status:</span>
+<select class="bg-transparent border-none text-label-md font-label-md text-on-surface focus:ring-0 p-0 cursor-pointer">
+<option>Any Status</option>
+<option>Verified</option>
+<option>Pending</option>
+<option>Revision Needed</option>
+</select>
+</div>
+<div class="h-6 w-px bg-surface-border mx-1"></div>
+<button class="text-label-md font-label-md text-primary hover:underline px-2 transition-all">Reset Filters</button>
+<div class="ml-auto text-label-sm font-label-sm text-secondary">
+                    Showing 12 of 1,284 entries
+                </div>
+</div>
+<!-- Data Table Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-border shadow-[0px_4px_12px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50 border-b border-surface-border">
+<th class="px-6 py-4">
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-secondary uppercase tracking-widest cursor-pointer group">
+                                        Student Name <span class="material-symbols-outlined !text-[16px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">unfold_more</span>
+</div>
+</th>
+<th class="px-4 py-4">
+<div class="text-label-sm font-label-sm text-secondary uppercase tracking-widest">NIM</div>
+</th>
+<th class="px-4 py-4">
+<div class="text-label-sm font-label-sm text-secondary uppercase tracking-widest">Study Program</div>
+</th>
+<th class="px-4 py-4 text-center">
+<div class="text-label-sm font-label-sm text-secondary uppercase tracking-widest">Year</div>
+</th>
+<th class="px-6 py-4 w-1/3">
+<div class="text-label-sm font-label-sm text-secondary uppercase tracking-widest">Thesis Title</div>
+</th>
+<th class="px-4 py-4 text-center">
+<div class="text-label-sm font-label-sm text-secondary uppercase tracking-widest">Status</div>
+</th>
+<th class="px-6 py-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-border">
+<!-- Table Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-[11px]">AD</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Arya Dimas</p>
+<p class="text-[12px] text-secondary">arya.dimas@univ.ac.id</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-4 text-body-md text-on-surface-variant font-medium">200110452</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 bg-surface-container-low text-secondary text-[11px] font-bold rounded uppercase tracking-wider">Informatics</span>
+</td>
+<td class="px-4 py-4 text-center text-body-md text-on-surface-variant">2024</td>
+<td class="px-6 py-4">
+<p class="text-body-md font-medium text-on-surface line-clamp-1 group-hover:line-clamp-none transition-all cursor-help" title="Optimization of Convolutional Neural Networks for Real-time Object Detection in Low-power Edge Devices">Optimization of Convolutional Neural Networks for Real-time...</p>
+</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-success-green/10 text-success-green rounded-full text-[12px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-success-green"></span>
+                                        Verified
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-surface-container-low rounded-lg text-outline transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Table Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-[11px]">SP</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Siti Putriani</p>
+<p class="text-[12px] text-secondary">siti.putriani@univ.ac.id</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-4 text-body-md text-on-surface-variant font-medium">190110221</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 bg-surface-container-low text-secondary text-[11px] font-bold rounded uppercase tracking-wider">Information Systems</span>
+</td>
+<td class="px-4 py-4 text-center text-body-md text-on-surface-variant">2024</td>
+<td class="px-6 py-4">
+<p class="text-body-md font-medium text-on-surface line-clamp-1 group-hover:line-clamp-none transition-all cursor-help">Analysis of User Interface Acceptance in Local E-Government Portals</p>
+</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-warning-amber/10 text-warning-amber rounded-full text-[12px] font-semibold animate-pulse">
+<span class="w-1.5 h-1.5 rounded-full bg-warning-amber"></span>
+                                        Pending
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-surface-container-low rounded-lg text-outline transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Table Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-[11px]">BK</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Bambang Kusumo</p>
+<p class="text-[12px] text-secondary">bambang.k@univ.ac.id</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-4 text-body-md text-on-surface-variant font-medium">200110112</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 bg-surface-container-low text-secondary text-[11px] font-bold rounded uppercase tracking-wider">Informatics</span>
+</td>
+<td class="px-4 py-4 text-center text-body-md text-on-surface-variant">2023</td>
+<td class="px-6 py-4">
+<p class="text-body-md font-medium text-on-surface line-clamp-1 group-hover:line-clamp-none transition-all cursor-help">Implementing Blockchain for Secure Academic Transcript Verification</p>
+</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-success-green/10 text-success-green rounded-full text-[12px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-success-green"></span>
+                                        Verified
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-surface-container-low rounded-lg text-outline transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Table Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-[11px]">RM</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Rina Melati</p>
+<p class="text-[12px] text-secondary">rina.mel@univ.ac.id</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-4 text-body-md text-on-surface-variant font-medium">180220993</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 bg-surface-container-low text-secondary text-[11px] font-bold rounded uppercase tracking-wider">Computer Science</span>
+</td>
+<td class="px-4 py-4 text-center text-body-md text-on-surface-variant">2023</td>
+<td class="px-6 py-4">
+<p class="text-body-md font-medium text-on-surface line-clamp-1 group-hover:line-clamp-none transition-all cursor-help">Comparative Study of NoSQL vs SQL Databases for Scalable Financial Logs</p>
+</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-error-container text-error rounded-full text-[12px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                        Revision
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-surface-container-low rounded-lg text-outline transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="px-6 py-4 border-t border-surface-border flex items-center justify-between bg-surface-container-low/20">
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-secondary">Items per page:</span>
+<select class="bg-transparent border-none text-label-sm font-label-sm text-on-surface focus:ring-0 p-0 cursor-pointer">
+<option>10</option>
+<option selected="">20</option>
+<option>50</option>
+</select>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-label-sm font-label-sm text-secondary">1-12 of 1,284</span>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-md border border-surface-border bg-surface-container-lowest text-outline hover:bg-surface-container-low disabled:opacity-50 transition-all" disabled="">
+<span class="material-symbols-outlined !text-[20px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-md border border-surface-border bg-surface-container-lowest text-outline hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined !text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Contextual Help / Status Legend (Glassmorphism card) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+<div class="p-6 bg-surface-glass backdrop-blur-xl border border-surface-border rounded-2xl shadow-sm relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full"></div>
+<h4 class="font-headline-sm text-headline-sm mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">info</span>
+                        Verification Guidelines
+                    </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined !text-[14px]">done</span>
+</span>
+<p class="text-body-md text-on-surface-variant"><span class="font-semibold text-on-surface">Verified:</span> All documents (abstract, full paper, ethics) are signed and approved by advisors.</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-warning-amber/10 text-warning-amber flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined !text-[14px]">schedule</span>
+</span>
+<p class="text-body-md text-on-surface-variant"><span class="font-semibold text-on-surface">Pending:</span> Waiting for student to upload finalized PDF after defense corrections.</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-5 h-5 rounded bg-error/10 text-error flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined !text-[14px]">edit_note</span>
+</span>
+<p class="text-body-md text-on-surface-variant"><span class="font-semibold text-on-surface">Revision:</span> Discrepancies found in NIM or Title formatting. Action required by student.</p>
+</li>
+</ul>
+</div>
+<div class="p-6 bg-primary text-on-primary rounded-2xl shadow-lg relative overflow-hidden group">
+<div class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined !text-[180px]">architecture</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-2">Automated Archiving</h4>
+<p class="text-body-md text-primary-fixed mb-6 opacity-90">Our new system automatically syncs verified submissions to the national repository (RAMA) every 24 hours.</p>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 bg-on-primary text-primary font-label-md rounded-lg hover:bg-primary-fixed transition-all active:scale-95">View Logs</button>
+<button class="px-5 py-2 border border-on-primary/30 text-on-primary font-label-md rounded-lg hover:bg-white/10 transition-all active:scale-95">Sync Now</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto py-6 px-gutter border-t border-surface-border bg-surface-container-low/30 text-center">
+<p class="text-label-sm font-label-sm text-secondary">© 2024 University Academic Portal — Faculty of Information Technology</p>
+</footer>
+</main>
+<script>
+        // Micro-interactions for table rows
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.cursor = 'pointer';
+            });
+            row.addEventListener('click', (e) => {
+                if(!e.target.closest('button')) {
+                    // Placeholder action for row click
+                    console.log('Row clicked: ' + row.querySelector('p').innerText);
+                    // Add visual feedback
+                    row.classList.add('bg-primary/5');
+                    setTimeout(() => row.classList.remove('bg-primary/5'), 300);
+                }
+            });
+        });
+
+        // Simple Global Search Mockup
+        const searchInput = document.querySelector('header input');
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(val) ? '' : 'none';
+            });
+        });
+    </script>
+</body></html>
