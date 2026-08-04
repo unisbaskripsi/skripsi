@@ -68,6 +68,8 @@ export default function DashboardPage() {
   const [totalMahasiswa, setTotalMahasiswa] = useState(0);
   const [recentSkripsi, setRecentSkripsi] = useState<any[]>([]);
   const [recentStudents, setRecentStudents] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [prodiData, setProdiData] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -92,6 +94,62 @@ export default function DashboardPage() {
       // Fetch recent students
       const { data: recentU } = await supabase.from("profiles").select("*").eq("role", "mahasiswa").order("created_at", { ascending: false }).limit(5);
       setRecentStudents(recentU || []);
+
+      // Fetch for charts
+      const { data: pmkData } = await supabase.from("pmk_documents").select("tahun");
+      const { data: skripsiData } = await supabase.from("skripsi_documents").select("tahun");
+      const { data: profilesData } = await supabase.from("profiles").select("prodi").eq("role", "mahasiswa");
+
+      // Process year data
+      const yearMap: Record<string, {pmk: number, skripsi: number}> = {};
+      const processYear = (data: any[] | null, type: 'pmk' | 'skripsi') => {
+        if (!data) return;
+        data.forEach(item => {
+          if (!item.tahun) return;
+          const y = String(item.tahun);
+          if (!yearMap[y]) yearMap[y] = { pmk: 0, skripsi: 0 };
+          yearMap[y][type]++;
+        });
+      };
+      processYear(pmkData, 'pmk');
+      processYear(skripsiData, 'skripsi');
+      
+      let maxCount = 0;
+      Object.values(yearMap).forEach(v => {
+        if (v.pmk > maxCount) maxCount = v.pmk;
+        if (v.skripsi > maxCount) maxCount = v.skripsi;
+      });
+      
+      const formattedChartData = Object.entries(yearMap)
+        .map(([year, counts]) => ({
+          year,
+          pmk: maxCount === 0 ? 0 : Math.round((counts.pmk / maxCount) * 100),
+          skripsi: maxCount === 0 ? 0 : Math.round((counts.skripsi / maxCount) * 100),
+          rawPmk: counts.pmk,
+          rawSkripsi: counts.skripsi
+        }))
+        .sort((a, b) => a.year.localeCompare(b.year))
+        .slice(-5);
+      
+      if (formattedChartData.length === 0) {
+        formattedChartData.push({ year: new Date().getFullYear().toString(), pmk: 0, skripsi: 0, rawPmk: 0, rawSkripsi: 0 });
+      }
+      setChartData(formattedChartData);
+
+      // Process prodi data
+      let manCount = 0;
+      let aktCount = 0;
+      if (profilesData) {
+        profilesData.forEach(p => {
+          if (p.prodi?.toLowerCase() === 'manajemen') manCount++;
+          if (p.prodi?.toLowerCase() === 'akuntansi') aktCount++;
+        });
+      }
+      const totalProdi = manCount + aktCount;
+      setProdiData([
+        { label: "Manajemen", pct: totalProdi === 0 ? 0 : Math.round((manCount / totalProdi) * 100), count: manCount, color: "bg-blue-600" },
+        { label: "Akuntansi", pct: totalProdi === 0 ? 0 : Math.round((aktCount / totalProdi) * 100), count: aktCount, color: "bg-indigo-500" },
+      ]);
     };
     
     loadData();
@@ -177,17 +235,11 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="h-52 flex items-end justify-between gap-3">
-            {[
-              { year: "2020", pmk: 40, skripsi: 60 },
-              { year: "2021", pmk: 55, skripsi: 45 },
-              { year: "2022", pmk: 70, skripsi: 80 },
-              { year: "2023", pmk: 65, skripsi: 90 },
-              { year: "2024", pmk: 85, skripsi: 75 },
-            ].map((d) => (
+            {chartData.map((d) => (
               <div key={d.year} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full flex gap-0.5 items-end" style={{ height: "180px" }}>
-                  <div className="flex-1 bg-blue-100 rounded-t-sm hover:bg-blue-200 transition-colors" style={{ height: `${d.pmk}%` }} title={`PMK ${d.year}`} />
-                  <div className="flex-1 bg-blue-600 rounded-t-sm hover:bg-blue-700 transition-colors" style={{ height: `${d.skripsi}%` }} title={`Skripsi ${d.year}`} />
+                  <div className="flex-1 bg-blue-100 rounded-t-sm hover:bg-blue-200 transition-colors" style={{ height: `${d.pmk}%` }} title={`PMK ${d.year}: ${d.rawPmk} dokumen`} />
+                  <div className="flex-1 bg-blue-600 rounded-t-sm hover:bg-blue-700 transition-colors" style={{ height: `${d.skripsi}%` }} title={`Skripsi ${d.year}: ${d.rawSkripsi} dokumen`} />
                 </div>
                 <span className="text-[11px] text-slate-400 font-medium">{d.year}</span>
               </div>
@@ -205,13 +257,10 @@ export default function DashboardPage() {
           <div className="bg-white p-6 rounded-2xl border border-slate-200">
             <h3 className="text-sm font-bold text-slate-900 mb-4">Distribusi Program Studi</h3>
             <div className="space-y-3">
-              {[
-                { label: "Manajemen", pct: 58, color: "bg-blue-600" },
-                { label: "Akuntansi", pct: 42, color: "bg-indigo-500" },
-              ].map((p) => (
+              {prodiData.map((p) => (
                 <div key={p.label} className="space-y-1.5">
                   <div className="flex justify-between text-xs">
-                    <span className="font-medium text-slate-700">{p.label}</span>
+                    <span className="font-medium text-slate-700">{p.label} ({p.count})</span>
                     <span className="text-slate-400">{p.pct}%</span>
                   </div>
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
