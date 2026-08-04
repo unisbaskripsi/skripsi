@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Edit2, Trash2, Search, X, Eye, Shield, GraduationCap } from "lucide-react";
+import { Edit2, Trash2, Search, X, Eye, Shield, GraduationCap, AlertTriangle } from "lucide-react";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
 
@@ -19,6 +19,9 @@ export default function UserManagementPage() {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [viewingUser, setViewingUser] = useState<any>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form (dipakai bersama untuk Edit dan Add)
   const [formEmail, setFormEmail] = useState("");
@@ -69,14 +72,38 @@ export default function UserManagementPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (u: any) => {
+  const handleDelete = (u: any) => {
     if (session?.id === u.id) {
       alert("Anda tidak dapat menghapus akun Anda sendiri!");
       return;
     }
-    if (confirm(`Hapus profil akun ${u.nama_lengkap || u.email}?`)) {
-      await supabase.from("profiles").delete().eq("id", u.id);
+    setUserToDelete(u);
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+      const token = supabaseSession?.access_token || "";
+
+      const res = await fetch(`/api/users?id=${userToDelete.id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal menghapus akun");
+      
+      setIsDeleteOpen(false);
+      setUserToDelete(null);
       loadUsers();
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -384,6 +411,43 @@ export default function UserManagementPage() {
             </div>
             <div className="px-6 py-4 border-t border-slate-200 flex justify-end">
               <Button onClick={() => setIsDetailOpen(false)}>Tutup</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteOpen && userToDelete && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-6 pb-0 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="text-red-500 w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900 mb-2">Hapus Akun?</h2>
+              <p className="text-slate-500 text-sm mb-6">
+                Apakah Anda yakin ingin menghapus akun <span className="font-semibold text-slate-700">{userToDelete.nama_lengkap || userToDelete.email}</span>? Tindakan ini tidak dapat dibatalkan dan semua data pengguna ini akan hilang secara permanen.
+              </p>
+            </div>
+            <div className="p-6 pt-4 bg-slate-50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-2xl">
+              <Button 
+                variant="secondary" 
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setUserToDelete(null);
+                }}
+                disabled={isDeleting}
+                className="w-full sm:w-auto"
+              >
+                Batal
+              </Button>
+              <Button 
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? "Menghapus..." : "Ya, Hapus Akun"}
+              </Button>
             </div>
           </div>
         </div>
