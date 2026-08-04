@@ -260,8 +260,8 @@ export default function UserManagementPage() {
 
       {/* Modal Add / Edit */}
       {(isModalOpen || isAddUserOpen) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-zoom-in">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white">
               <h2 className="text-xl font-bold text-gray-800">
                 {isAddUserOpen ? "Tambah Akun Baru" : "Edit Profil Pengguna"}
@@ -384,8 +384,8 @@ export default function UserManagementPage() {
 
       {/* Detail Modal */}
       {isDetailOpen && viewingUser && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl animate-zoom-in">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">Detail Profil</h2>
               <button onClick={() => setIsDetailOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"><X size={18} /></button>
@@ -418,8 +418,8 @@ export default function UserManagementPage() {
 
       {/* Delete Confirmation Modal */}
       {isDeleteOpen && userToDelete && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-zoom-in">
             <div className="p-6 pb-0 flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
                 <AlertTriangle className="text-red-500 w-8 h-8" />
