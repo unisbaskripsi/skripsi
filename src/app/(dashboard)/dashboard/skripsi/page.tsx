@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit2, Trash2, X, Eye } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, X, Eye, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
+import Toast from "@/components/ui/Toast";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
 
@@ -20,6 +21,8 @@ export default function SkripsiManagementPage() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [viewingItem, setViewingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [toast, setToast] = useState({ show: false, message: "" });
 
   // Form states
   const [nim, setNim] = useState("");
@@ -119,8 +122,16 @@ export default function SkripsiManagementPage() {
       return;
     }
     if (confirm(`Apakah Anda yakin ingin menghapus data skripsi milik ${item.nama_mahasiswa}?`)) {
-      await supabase.from("skripsi_documents").delete().eq("id", item.id);
-      setData(data.filter((x) => x.id !== item.id));
+      setDeletingId(item.id);
+      try {
+        await supabase.from("skripsi_documents").delete().eq("id", item.id);
+        setData(data.filter((x) => x.id !== item.id));
+        setToast({ show: true, message: "Data skripsi berhasil dihapus!" });
+      } catch (error) {
+        alert("Terjadi kesalahan saat menghapus data.");
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
 
@@ -241,6 +252,7 @@ export default function SkripsiManagementPage() {
       
       if (session) fetchData(session);
       setIsModalOpen(false);
+      setToast({ show: true, message: "Data skripsi berhasil disimpan!" });
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Terjadi kesalahan saat menyimpan data.");
@@ -352,8 +364,13 @@ export default function SkripsiManagementPage() {
                           </button>
                         )}
                         {canDelete && (
-                          <button onClick={() => handleDelete(item)} className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors" title="Hapus">
-                            <Trash2 size={15} />
+                          <button 
+                            onClick={() => handleDelete(item)} 
+                            disabled={deletingId === item.id}
+                            className={`p-1.5 rounded-lg transition-colors ${deletingId === item.id ? "text-slate-300" : "text-slate-400 hover:bg-red-50 hover:text-red-600"}`} 
+                            title="Hapus"
+                          >
+                            {deletingId === item.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
                           </button>
                         )}
                       </div>
@@ -431,7 +448,9 @@ export default function SkripsiManagementPage() {
               
               <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-2 bg-slate-50 rounded-b-2xl">
                 <Button variant="secondary" type="button" onClick={() => setIsModalOpen(false)} disabled={loading}>Batal</Button>
-                <Button type="submit" disabled={loading}>Simpan Data</Button>
+                <Button type="submit" disabled={loading || !nim || !nama || !judul || !pembimbing1 || (!editingItem && !selectedFile)}>
+                  {loading ? "Menyimpan..." : "Simpan Data"}
+                </Button>
               </div>
             </form>
           </div>
@@ -480,6 +499,8 @@ export default function SkripsiManagementPage() {
           </div>
         </div>
       )}
+
+      <Toast isVisible={toast.show} message={toast.message} onClose={() => setToast({ ...toast, show: false })} />
     </div>
   );
 }

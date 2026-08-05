@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit2, Trash2, X, Eye, FileUp } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, X, Eye, FileUp, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
+import Toast from "@/components/ui/Toast";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
 
@@ -22,6 +23,8 @@ export default function PMKManagementPage() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [viewingItem, setViewingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [toast, setToast] = useState({ show: false, message: "" });
 
   const [nim, setNim] = useState("");
   const [nama, setNama] = useState("");
@@ -105,8 +108,16 @@ export default function PMKManagementPage() {
       return;
     }
     if (confirm(`Hapus data PMK milik ${item.nama_mahasiswa}?`)) {
-      await supabase.from("pmk_documents").delete().eq("id", item.id);
-      setData(data.filter((x) => x.id !== item.id));
+      setDeletingId(item.id);
+      try {
+        await supabase.from("pmk_documents").delete().eq("id", item.id);
+        setData(data.filter((x) => x.id !== item.id));
+        setToast({ show: true, message: "Data PMK berhasil dihapus!" });
+      } catch (error) {
+        alert("Terjadi kesalahan saat menghapus data.");
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
 
@@ -225,6 +236,7 @@ export default function PMKManagementPage() {
       
       if (session) fetchData(session);
       setIsModalOpen(false);
+      setToast({ show: true, message: "Data PMK berhasil disimpan!" });
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Terjadi kesalahan saat menyimpan data.");
@@ -352,8 +364,13 @@ export default function PMKManagementPage() {
                           </button>
                         )}
                         {canDelete && (
-                          <button onClick={() => handleDelete(item)} className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors" title="Hapus">
-                            <Trash2 size={15} />
+                          <button 
+                            onClick={() => handleDelete(item)} 
+                            disabled={deletingId === item.id}
+                            className={`p-1.5 rounded-lg transition-colors ${deletingId === item.id ? "text-slate-300" : "text-slate-400 hover:bg-red-50 hover:text-red-600"}`} 
+                            title="Hapus"
+                          >
+                            {deletingId === item.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
                           </button>
                         )}
                       </div>
@@ -415,9 +432,11 @@ export default function PMKManagementPage() {
                   </select>
                 </div>
               </div>
-              <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-2">
+              <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-2 bg-slate-50 rounded-b-2xl">
                 <Button variant="secondary" type="button" onClick={() => setIsModalOpen(false)} disabled={loading}>Batal</Button>
-                <Button type="submit" disabled={loading}>Simpan Data</Button>
+                <Button type="submit" disabled={loading || !nim || !nama || !judul || (!editingItem && !selectedFile)}>
+                  {loading ? "Menyimpan..." : "Simpan Data"}
+                </Button>
               </div>
             </form>
           </div>
@@ -463,9 +482,12 @@ export default function PMKManagementPage() {
             <div className="px-6 py-4 border-t border-slate-200 flex justify-end">
               <Button onClick={() => setIsDetailOpen(false)}>Tutup</Button>
             </div>
+            </div>
           </div>
         </div>
       )}
+
+      <Toast isVisible={toast.show} message={toast.message} onClose={() => setToast({ ...toast, show: false })} />
     </div>
   );
 }
