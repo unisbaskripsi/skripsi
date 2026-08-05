@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import PdfPreviewModal from "@/components/ui/PdfPreviewModal";
 import { useToast } from "@/components/ui/ToastContext";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
@@ -28,6 +29,10 @@ export default function SkripsiManagementPage() {
   // Confirm Modal state
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
+
+  // PDF Preview state
+  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+  const [previewItem, setPreviewItem] = useState<any>(null);
 
   // Form states
   const [nim, setNim] = useState("");
@@ -299,6 +304,21 @@ export default function SkripsiManagementPage() {
         </Button>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total", value: data.length, color: "bg-blue-50 text-blue-700 border-blue-100" },
+          { label: "Diajukan", value: data.filter(d => d.status === "Diajukan").length, color: "bg-amber-50 text-amber-700 border-amber-100" },
+          { label: "Diterima", value: data.filter(d => d.status === "Diterima").length, color: "bg-emerald-50 text-emerald-700 border-emerald-100" },
+          { label: "Lulus", value: data.filter(d => d.status === "Lulus").length, color: "bg-purple-50 text-purple-700 border-purple-100" },
+        ].map((stat) => (
+          <div key={stat.label} className={`flex flex-col items-center justify-center p-4 rounded-xl border ${stat.color} font-semibold`}>
+            <span className="text-2xl font-bold">{stat.value}</span>
+            <span className="text-xs uppercase tracking-wider mt-0.5 opacity-70">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+
       <div className="flex items-center gap-2 max-w-md bg-white rounded-xl border border-slate-200 px-3 py-2 shadow-sm">
         <Search size={16} className="text-slate-400 flex-shrink-0" />
         <input
@@ -311,13 +331,14 @@ export default function SkripsiManagementPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200">
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">NIM</th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Mahasiswa</th>
-                <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Judul &amp; Pembimbing</th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Judul & Pembimbing</th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Tahun</th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Aksi</th>
@@ -365,9 +386,9 @@ export default function SkripsiManagementPage() {
                           <Eye size={15} />
                         </button>
                         {item.gdrive_file_id && (
-                          <a href={item.gdrive_file_id} target="_blank" rel="noopener noreferrer" className="p-1.5 block rounded-lg text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" title="Lihat/Download File (Google Drive)">
-                            <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                          </a>
+                          <button onClick={() => { setPreviewItem(item); setIsPdfPreviewOpen(true); }} className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors" title="Preview PDF">
+                            <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                          </button>
                         )}
                         {canEdit && (
                           <button onClick={() => handleOpenEdit(item)} className="p-1.5 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-colors" title="Edit">
@@ -398,6 +419,53 @@ export default function SkripsiManagementPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card List */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {filtered.length > 0 ? filtered.map((item) => {
+            const isOwn = session.role.toLowerCase() === "mahasiswa" && session.profile?.nim === item.nim;
+            const canEdit = session.role.toLowerCase() === "admin" || isOwn;
+            const canDelete = session.role.toLowerCase() === "admin";
+            const statusClass = item.status === "Lulus" ? "bg-purple-50 text-purple-700" : item.status === "Diterima" ? "bg-emerald-50 text-emerald-700" : item.status === "Ditolak" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600";
+            return (
+              <div key={item.id} className="p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-800 text-sm">{item.nama_mahasiswa}</p>
+                    <p className="text-xs text-slate-500">{item.nim} · {item.prodi} · {item.tahun}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase flex-shrink-0 ${statusClass}`}>{item.status}</span>
+                </div>
+                <p className="text-sm text-slate-600 line-clamp-2 font-medium">{item.judul}</p>
+                <p className="text-[11px] text-slate-400"><span className="font-semibold">P1:</span> {item.pembimbing_1}</p>
+                <div className="flex items-center justify-between pt-1">
+                  {session.role.toLowerCase() === "admin" && (
+                    <select value={item.status} onChange={(e) => handleStatusChange(item, e.target.value)} className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase border-0 cursor-pointer focus:outline-none ${statusClass}`}>
+                      {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  )}
+                  <div className="flex gap-1.5 ml-auto">
+                    <button onClick={() => handleOpenDetail(item)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100" title="Detail"><Eye size={14} /></button>
+                    {item.gdrive_file_id && (
+                      <button onClick={() => { setPreviewItem(item); setIsPdfPreviewOpen(true); }} className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500" title="Preview PDF">
+                        <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      </button>
+                    )}
+                    {canEdit && <button onClick={() => handleOpenEdit(item)} className="p-1.5 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600" title="Edit"><Edit2 size={14} /></button>}
+                    {canDelete && (
+                      <button onClick={() => handleDelete(item)} disabled={deletingId === item.id} className={`p-1.5 rounded-lg transition-colors ${deletingId === item.id ? "text-slate-300" : "text-slate-400 hover:bg-red-50 hover:text-red-600"}`} title="Hapus">
+                        {deletingId === item.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          }) : (
+            <div className="py-12 text-center text-slate-400 text-sm">Tidak ada data Skripsi yang ditemukan.</div>
+          )}
+        </div>
+
         <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
           <p className="text-xs text-slate-400">Menampilkan {filtered.length} dari {data.length} data</p>
         </div>
@@ -518,6 +586,13 @@ export default function SkripsiManagementPage() {
         isLoading={deletingId !== null}
         onConfirm={executeDelete}
         onClose={() => setIsConfirmOpen(false)}
+      />
+
+      <PdfPreviewModal
+        isOpen={isPdfPreviewOpen}
+        onClose={() => { setIsPdfPreviewOpen(false); setPreviewItem(null); }}
+        driveLink={previewItem?.gdrive_file_id || null}
+        title={previewItem?.judul || ""}
       />
     </div>
   );
