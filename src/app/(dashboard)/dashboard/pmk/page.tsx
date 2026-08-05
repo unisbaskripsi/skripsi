@@ -482,7 +482,6 @@ export default function PMKManagementPage() {
             <div className="px-6 py-4 border-t border-slate-200 flex justify-end">
               <Button onClick={() => setIsDetailOpen(false)}>Tutup</Button>
             </div>
-            </div>
           </div>
         </div>
       )}
