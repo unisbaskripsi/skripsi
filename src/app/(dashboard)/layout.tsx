@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { Menu } from "lucide-react";
+import { useToast } from "@/components/ui/ToastContext";
 
 export default function DashboardLayout({
   children,
@@ -11,6 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { showToast } = useToast();
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -41,7 +43,7 @@ export default function DashboardLayout({
           </div>
           <div className="flex items-center gap-2 md:gap-3 ml-2 md:ml-4 flex-shrink-0">
             <button 
-              onClick={() => alert("Tidak ada notifikasi baru.")}
+              onClick={() => showToast("Tidak ada notifikasi baru.", "info")}
               className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors relative"
             >
               <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

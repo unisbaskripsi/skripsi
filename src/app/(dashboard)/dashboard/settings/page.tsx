@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { User, Lock, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/ToastContext";
 
 export default function SettingsPage() {
   const [session, setSession] = useState<UserSession | null>(null);
@@ -14,8 +15,8 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("");
   const [noHp, setNoHp] = useState("");
   const [password, setPassword] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const init = async () => {
@@ -70,11 +71,11 @@ export default function SettingsPage() {
         } as any
       };
       setSession(updatedSession);
-      setIsSuccess(true);
-      setTimeout(() => setIsSuccess(false), 3000);
+      setSession(updatedSession);
+      showToast("Perubahan profil berhasil disimpan!", "success");
       if (password) setPassword(""); // clear password field
     } catch (err: any) {
-      alert("Gagal mengupdate profil: " + err.message);
+      showToast("Gagal mengupdate profil: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -102,12 +103,6 @@ export default function SettingsPage() {
               <h2 className="text-base font-bold text-slate-800">Informasi Pribadi</h2>
             </div>
             <form onSubmit={handleUpdateProfile} className="p-4 sm:p-6 space-y-4">
-              {isSuccess && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm font-semibold mb-4">
-                  Perubahan berhasil disimpan!
-                </div>
-              )}
-              
               <div className="space-y-4">
                 <Input 
                   label="Nama Lengkap" 

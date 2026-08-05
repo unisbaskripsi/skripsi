@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
 import { getSession, completeProfile, UserSession, UserProfile, getStoredUsers } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/ToastContext";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { TrendingUp, Minus as TrendingFlat } from "lucide-react";
@@ -18,6 +19,7 @@ function ProfileForm({ session, onComplete }: { session: UserSession; onComplete
   const [angkatan, setAngkatan] = useState(session.profile?.angkatan || "");
   const [email, setEmail] = useState(session.profile?.email || "");
   const [noHp, setNoHp] = useState(session.profile?.noHp || "");
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +72,7 @@ export default function DashboardPage() {
   const [recentStudents, setRecentStudents] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [prodiData, setProdiData] = useState<any[]>([]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const loadData = async () => {
@@ -275,7 +278,7 @@ export default function DashboardPage() {
           <div className="glass-card p-5 rounded-2xl relative overflow-hidden group bg-white">
             <h3 className="text-base font-bold text-blue-600 mb-1">Butuh Bantuan?</h3>
             <p className="text-sm text-slate-500 mb-3">Akses panduan atau hubungi staff IT untuk kendala penggunaan sistem.</p>
-            <button onClick={() => alert("Pusat bantuan sedang dikembangkan. Silakan hubungi admin di akademik@ekonomi.unisba.ac.id")} className="w-full py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
+            <button onClick={() => showToast("Pusat bantuan sedang dikembangkan. Silakan hubungi admin di akademik@ekonomi.unisba.ac.id", "info")} className="w-full py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
               Buka Pusat Bantuan
             </button>
             <div className="absolute -bottom-8 -right-8 w-28 h-28 bg-blue-600/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />

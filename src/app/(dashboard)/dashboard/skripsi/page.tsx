@@ -5,7 +5,8 @@ import { Plus, Search, Edit2, Trash2, X, Eye, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
-import Toast from "@/components/ui/Toast";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import { useToast } from "@/components/ui/ToastContext";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
 
@@ -22,7 +23,11 @@ export default function SkripsiManagementPage() {
   const [viewingItem, setViewingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [toast, setToast] = useState({ show: false, message: "" });
+  const { showToast } = useToast();
+  
+  // Confirm Modal state
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
 
   // Form states
   const [nim, setNim] = useState("");
@@ -62,7 +67,7 @@ export default function SkripsiManagementPage() {
     if (!session) return;
     
     if (session.role === "mahasiswa" && !session.isProfileCompleted) {
-      alert("Harap lengkapi profil Anda terlebih dahulu di halaman Dashboard!");
+      showToast("Harap lengkapi profil Anda terlebih dahulu di halaman Dashboard!", "error");
       return;
     }
 
@@ -93,7 +98,7 @@ export default function SkripsiManagementPage() {
     if (!session) return;
 
     if (session.role.toLowerCase() === "mahasiswa" && session.profile?.nim !== item.nim) {
-      alert("Anda hanya diperbolehkan mengedit data skripsi Anda sendiri!");
+      showToast("Anda hanya diperbolehkan mengedit data skripsi Anda sendiri!", "error");
       return;
     }
 
@@ -116,22 +121,28 @@ export default function SkripsiManagementPage() {
     setIsDetailOpen(true);
   };
 
-  const handleDelete = async (item: any) => {
+  const handleDelete = (item: any) => {
     if (!session || session.role.toLowerCase() !== "admin") {
-      alert("Mahasiswa tidak diperbolehkan menghapus data skripsi!");
+      showToast("Mahasiswa tidak diperbolehkan menghapus data skripsi!", "error");
       return;
     }
-    if (confirm(`Apakah Anda yakin ingin menghapus data skripsi milik ${item.nama_mahasiswa}?`)) {
-      setDeletingId(item.id);
-      try {
-        await supabase.from("skripsi_documents").delete().eq("id", item.id);
-        setData(data.filter((x) => x.id !== item.id));
-        setToast({ show: true, message: "Data skripsi berhasil dihapus!" });
-      } catch (error) {
-        alert("Terjadi kesalahan saat menghapus data.");
-      } finally {
-        setDeletingId(null);
-      }
+    setItemToDelete(item);
+    setIsConfirmOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!itemToDelete) return;
+    setDeletingId(itemToDelete.id);
+    try {
+      await supabase.from("skripsi_documents").delete().eq("id", itemToDelete.id);
+      setData(data.filter((x) => x.id !== itemToDelete.id));
+      showToast("Data skripsi berhasil dihapus!", "success");
+    } catch (error) {
+      showToast("Terjadi kesalahan saat menghapus data.", "error");
+    } finally {
+      setDeletingId(null);
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -144,7 +155,7 @@ export default function SkripsiManagementPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 20 * 1024 * 1024) {
-        alert("Ukuran file maksimal adalah 20 MB. Silakan kompres file PDF Anda terlebih dahulu.");
+        showToast("Ukuran file maksimal adalah 20 MB. Silakan kompres file PDF Anda terlebih dahulu.", "error");
         e.target.value = ""; // Reset input
         setSelectedFile(null);
         return;
@@ -252,10 +263,10 @@ export default function SkripsiManagementPage() {
       
       if (session) fetchData(session);
       setIsModalOpen(false);
-      setToast({ show: true, message: "Data skripsi berhasil disimpan!" });
+      showToast("Data skripsi berhasil disimpan!", "success");
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Terjadi kesalahan saat menyimpan data.");
+      showToast(error.message || "Terjadi kesalahan saat menyimpan data.", "error");
     } finally {
       setLoading(false);
     }
@@ -500,7 +511,14 @@ export default function SkripsiManagementPage() {
         </div>
       )}
 
-      <Toast isVisible={toast.show} message={toast.message} onClose={() => setToast({ ...toast, show: false })} />
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Hapus Data Skripsi"
+        message={`Apakah Anda yakin ingin menghapus data skripsi milik ${itemToDelete?.nama_mahasiswa}? Tindakan ini tidak dapat dibatalkan.`}
+        isLoading={deletingId !== null}
+        onConfirm={executeDelete}
+        onClose={() => setIsConfirmOpen(false)}
+      />
     </div>
   );
 }

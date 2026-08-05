@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Edit2, Trash2, Search, X, Eye, Shield, GraduationCap, AlertTriangle } from "lucide-react";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/ToastContext";
 
 const PRODI_OPTIONS = ["Manajemen", "Akuntansi"];
 
@@ -22,6 +23,7 @@ export default function UserManagementPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   // Form (dipakai bersama untuk Edit dan Add)
   const [formEmail, setFormEmail] = useState("");
@@ -74,7 +76,7 @@ export default function UserManagementPage() {
 
   const handleDelete = (u: any) => {
     if (session?.id === u.id) {
-      alert("Anda tidak dapat menghapus akun Anda sendiri!");
+      showToast("Anda tidak dapat menghapus akun Anda sendiri!", "error");
       return;
     }
     setUserToDelete(u);
@@ -100,8 +102,9 @@ export default function UserManagementPage() {
       setIsDeleteOpen(false);
       setUserToDelete(null);
       loadUsers();
+      showToast("Akun berhasil dihapus!", "success");
     } catch (err: any) {
-      alert("Error: " + err.message);
+      showToast("Error: " + err.message, "error");
     } finally {
       setIsDeleting(false);
     }
@@ -146,10 +149,10 @@ export default function UserManagementPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Gagal menambah akun");
-        alert("Berhasil menambah akun baru!");
+        showToast("Berhasil menambah akun baru!", "success");
         setIsAddUserOpen(false);
       } catch (err: any) {
-        alert("Error: " + err.message);
+        showToast("Error: " + err.message, "error");
         return; // Jangan load users jika gagal
       }
     }

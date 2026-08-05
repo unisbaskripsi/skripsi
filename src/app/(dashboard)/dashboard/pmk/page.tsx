@@ -5,7 +5,8 @@ import { Plus, Search, Edit2, Trash2, X, Eye, FileUp, Loader2 } from "lucide-rea
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
-import Toast from "@/components/ui/Toast";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import { useToast } from "@/components/ui/ToastContext";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
 
@@ -24,7 +25,10 @@ export default function PMKManagementPage() {
   const [viewingItem, setViewingItem] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [toast, setToast] = useState({ show: false, message: "" });
+  const { showToast } = useToast();
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
 
   const [nim, setNim] = useState("");
   const [nama, setNama] = useState("");
@@ -63,7 +67,7 @@ export default function PMKManagementPage() {
   const openAdd = () => {
     if (!session) return;
     if (session.role === "mahasiswa" && !session.isProfileCompleted) {
-      alert("Harap lengkapi profil Anda di halaman Dashboard terlebih dahulu!");
+      showToast("Harap lengkapi profil Anda di halaman Dashboard terlebih dahulu!", "error");
       return;
     }
     setEditingItem(null);
@@ -85,7 +89,7 @@ export default function PMKManagementPage() {
   const openEdit = (item: any) => {
     if (!session) return;
     if (session.role === "mahasiswa" && session.profile?.nim !== item.nim) {
-      alert("Anda hanya dapat mengedit data PMK milik Anda sendiri!");
+      showToast("Anda hanya dapat mengedit data PMK milik Anda sendiri!", "error");
       return;
     }
     setEditingItem(item);
@@ -102,22 +106,28 @@ export default function PMKManagementPage() {
 
   const openDetail = (item: any) => { setViewingItem(item); setIsDetailOpen(true); };
 
-  const handleDelete = async (item: any) => {
+  const handleDelete = (item: any) => {
     if (!session || session.role.toLowerCase() !== "admin") {
-      alert("Hanya Admin yang dapat menghapus data PMK!");
+      showToast("Hanya Admin yang dapat menghapus data PMK!", "error");
       return;
     }
-    if (confirm(`Hapus data PMK milik ${item.nama_mahasiswa}?`)) {
-      setDeletingId(item.id);
-      try {
-        await supabase.from("pmk_documents").delete().eq("id", item.id);
-        setData(data.filter((x) => x.id !== item.id));
-        setToast({ show: true, message: "Data PMK berhasil dihapus!" });
-      } catch (error) {
-        alert("Terjadi kesalahan saat menghapus data.");
-      } finally {
-        setDeletingId(null);
-      }
+    setItemToDelete(item);
+    setIsConfirmOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!itemToDelete) return;
+    setDeletingId(itemToDelete.id);
+    try {
+      await supabase.from("pmk_documents").delete().eq("id", itemToDelete.id);
+      setData(data.filter((x) => x.id !== itemToDelete.id));
+      showToast("Data PMK berhasil dihapus!", "success");
+    } catch (error) {
+      showToast("Terjadi kesalahan saat menghapus data.", "error");
+    } finally {
+      setDeletingId(null);
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -130,7 +140,7 @@ export default function PMKManagementPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 20 * 1024 * 1024) {
-        alert("Ukuran file maksimal adalah 20 MB. Silakan kompres file PDF Anda terlebih dahulu.");
+        showToast("Ukuran file maksimal adalah 20 MB. Silakan kompres file PDF Anda terlebih dahulu.", "error");
         e.target.value = ""; // Reset input
         setSelectedFile(null);
         return;
@@ -236,10 +246,10 @@ export default function PMKManagementPage() {
       
       if (session) fetchData(session);
       setIsModalOpen(false);
-      setToast({ show: true, message: "Data PMK berhasil disimpan!" });
+      showToast("Data PMK berhasil disimpan!", "success");
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Terjadi kesalahan saat menyimpan data.");
+      showToast(error.message || "Terjadi kesalahan saat menyimpan data.", "error");
     } finally {
       setLoading(false);
     }
@@ -486,7 +496,14 @@ export default function PMKManagementPage() {
         </div>
       )}
 
-      <Toast isVisible={toast.show} message={toast.message} onClose={() => setToast({ ...toast, show: false })} />
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Hapus Data PMK"
+        message={`Apakah Anda yakin ingin menghapus data PMK milik ${itemToDelete?.nama_mahasiswa}? Tindakan ini tidak dapat dibatalkan.`}
+        isLoading={deletingId !== null}
+        onConfirm={executeDelete}
+        onClose={() => setIsConfirmOpen(false)}
+      />
     </div>
   );
 }

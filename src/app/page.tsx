@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/lib/auth-mock";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { useToast } from "@/components/ui/ToastContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showToast } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +122,7 @@ export default function LoginPage() {
                   <label className="text-xs font-semibold text-slate-500 tracking-wide uppercase" htmlFor="password">
                     Password
                   </label>
-                  <button type="button" onClick={() => alert("Fitur lupa password sedang dalam pengembangan. Silakan hubungi staff fakultas.")} className="text-xs font-semibold text-blue-600 hover:underline">Lupa Password?</button>
+                  <button type="button" onClick={() => showToast("Fitur lupa password sedang dalam pengembangan. Silakan hubungi staff fakultas.", "info")} className="text-xs font-semibold text-blue-600 hover:underline">Lupa Password?</button>
                 </div>
                 <div className="relative group">
                   <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +168,7 @@ export default function LoginPage() {
               </p>
               <p className="text-xs text-slate-400">
                 Butuh bantuan?{" "}
-                <button onClick={() => alert("Hubungi BAAK Fakultas Ekonomi di email: akademik@ekonomi.unisba.ac.id")} className="text-blue-600 hover:underline">Hubungi Staff Fakultas</button>
+                <button onClick={() => showToast("Hubungi BAAK Fakultas Ekonomi di email: akademik@ekonomi.unisba.ac.id", "info")} className="text-blue-600 hover:underline">Hubungi Staff Fakultas</button>
               </p>
             </div>
 

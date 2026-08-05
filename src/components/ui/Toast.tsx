@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, X, AlertCircle, Info } from "lucide-react";
+
+export type ToastType = "success" | "error" | "info";
 
 interface ToastProps {
   message: string;
   isVisible: boolean;
+  type?: ToastType;
   onClose: () => void;
 }
 
-export default function Toast({ message, isVisible, onClose }: ToastProps) {
+export default function Toast({ message, isVisible, type = "info", onClose }: ToastProps) {
   const [shouldRender, setShouldRender] = useState(isVisible);
 
   useEffect(() => {
@@ -35,7 +38,9 @@ export default function Toast({ message, isVisible, onClose }: ToastProps) {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
     >
-      <CheckCircle2 size={18} className="text-emerald-400" />
+      {type === "success" && <CheckCircle2 size={18} className="text-emerald-400" />}
+      {type === "error" && <AlertCircle size={18} className="text-red-400" />}
+      {type === "info" && <Info size={18} className="text-blue-400" />}
       <span className="text-sm font-medium">{message}</span>
       <button 
         onClick={onClose}
@@ -46,3 +51,4 @@ export default function Toast({ message, isVisible, onClose }: ToastProps) {
     </div>
   );
 }
+
