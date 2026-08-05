@@ -34,73 +34,96 @@ export async function POST(req: NextRequest) {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Missing or invalid authorization header" }, { status: 401 });
     }
-    
-    // Validasi file
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
 
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
-    }
+    const body = await req.json();
+    const { action } = body;
 
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      return NextResponse.json({ error: "Security Policy: Only PDF files are allowed" }, { status: 403 });
+    if (!action) {
+      return NextResponse.json({ error: "Missing action in request body" }, { status: 400 });
     }
-
-    const MAX_FILE_SIZE = 4.5 * 1024 * 1024; // 4.5 MB
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: "Ukuran file maksimal adalah 4.5 MB" }, { status: 413 });
-    }
-    // === END SECURITY CHECK ===
 
     const auth = getGoogleAuth();
-    const drive = google.drive({ version: "v3", auth });
+    
+    // ACTION: INIT - Create Resumable Upload Session
+    if (action === "init") {
+      const { fileName, fileType, fileSize } = body;
+      
+      if (!fileName || !fileType) {
+        return NextResponse.json({ error: "Missing fileName or fileType" }, { status: 400 });
+      }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const stream = new Readable();
-    stream.push(buffer);
-    stream.push(null);
+      const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+      if (!folderId) {
+        throw new Error("Missing GOOGLE_DRIVE_FOLDER_ID");
+      }
 
-    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    if (!folderId) {
-      throw new Error("Missing GOOGLE_DRIVE_FOLDER_ID");
+      // Get Google Drive Access Token
+      const { token } = await auth.getAccessToken();
+
+      // Request Resumable Session URL
+      const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "X-Upload-Content-Type": fileType,
+          "X-Upload-Content-Length": fileSize?.toString() || "0",
+        },
+        body: JSON.stringify({
+          name: fileName,
+          parents: [folderId]
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create resumable upload session");
+      }
+
+      const uploadUrl = res.headers.get("Location");
+      if (!uploadUrl) {
+        throw new Error("No Location header returned from Google API");
+      }
+
+      return NextResponse.json({ success: true, uploadUrl });
     }
+    
+    // ACTION: FINALIZE - Set Permissions & Get Link
+    else if (action === "finalize") {
+      const { fileId } = body;
+      
+      if (!fileId) {
+        return NextResponse.json({ error: "Missing fileId" }, { status: 400 });
+      }
 
-    const fileMetadata = {
-      name: file.name,
-      parents: [folderId],
-    };
+      const drive = google.drive({ version: "v3", auth });
 
-    const media = {
-      mimeType: file.type,
-      body: stream,
-    };
-
-    const response = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: "id, webViewLink, webContentLink",
-    });
-
-    // Share the file publicly so anyone with the link can view it
-    if (response.data.id) {
+      // Share the file publicly so anyone with the link can view it
       await drive.permissions.create({
-        fileId: response.data.id,
+        fileId: fileId,
         requestBody: {
           role: "reader",
           type: "anyone",
         },
       });
+
+      // Get the file links
+      const fileRes = await drive.files.get({
+        fileId: fileId,
+        fields: "id, webViewLink, webContentLink",
+      });
+
+      return NextResponse.json({
+        success: true,
+        fileId: fileRes.data.id,
+        webViewLink: fileRes.data.webViewLink,
+        webContentLink: fileRes.data.webContentLink,
+      });
     }
 
-    return NextResponse.json({
-      success: true,
-      fileId: response.data.id,
-      webViewLink: response.data.webViewLink,
-      webContentLink: response.data.webContentLink,
-    });
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    
   } catch (error: any) {
     console.error("Upload error:", error);
-    return NextResponse.json({ error: error.message || "Failed to upload file" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to process upload request" }, { status: 500 });
   }
 }

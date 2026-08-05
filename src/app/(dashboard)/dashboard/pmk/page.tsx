@@ -118,8 +118,8 @@ export default function PMKManagementPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 4.5 * 1024 * 1024) {
-        alert("Ukuran file maksimal adalah 4.5 MB. Silakan kompres file PDF Anda terlebih dahulu.");
+      if (file.size > 20 * 1024 * 1024) {
+        alert("Ukuran file maksimal adalah 20 MB. Silakan kompres file PDF Anda terlebih dahulu.");
         e.target.value = ""; // Reset input
         setSelectedFile(null);
         return;
@@ -137,24 +137,64 @@ export default function PMKManagementPage() {
     let gdrive_file_id = editingItem ? editingItem.gdrive_file_id : null;
 
     if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
       const { data: { session: supabaseSession } } = await supabase.auth.getSession();
       const token = supabaseSession?.access_token || "";
 
-      const res = await fetch("/api/upload", {
+      // Tahap 1: Minta Resumable Upload Session URL ke server
+      const initRes = await fetch("/api/upload", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
-        body: formData,
+        body: JSON.stringify({ 
+          action: "init", 
+          fileName: selectedFile.name, 
+          fileType: selectedFile.type,
+          fileSize: selectedFile.size
+        }),
       });
-      const uploadResult = await res.json();
-      if (uploadResult.success) {
-        gdrive_file_id = uploadResult.webViewLink; // we save the link so it's easy to click
+      const initData = await initRes.json();
+      
+      if (!initData.success || !initData.uploadUrl) {
+        alert("Gagal menginisiasi upload ke Google Drive: " + (initData.error || "Unknown error"));
+        setLoading(false);
+        return;
+      }
+
+      // Tahap 2: Upload file langsung ke URL Google Drive (Bypass Vercel)
+      const uploadRes = await fetch(initData.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": selectedFile.type
+        },
+        body: selectedFile
+      });
+
+      if (!uploadRes.ok) {
+        alert("Gagal mengupload file secara langsung ke Google Drive.");
+        setLoading(false);
+        return;
+      }
+
+      const uploadData = await uploadRes.json();
+      const fileId = uploadData.id;
+
+      // Tahap 3: Kirim fileId ke server untuk setting permissions dan mendapatkan webViewLink
+      const finalizeRes = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action: "finalize", fileId }),
+      });
+      const finalizeData = await finalizeRes.json();
+
+      if (finalizeData.success) {
+        gdrive_file_id = finalizeData.webViewLink; // we save the link so it's easy to click
       } else {
-        alert("Gagal mengupload file ke Google Drive: " + uploadResult.error);
+        alert("Gagal menyelesaikan upload (set permissions): " + finalizeData.error);
         setLoading(false);
         return;
       }
