@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Search, Edit2, Trash2, X, Eye } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
 import { getSession, UserSession } from "@/lib/auth-mock";
 import { supabase } from "@/lib/supabase";
 
@@ -211,6 +212,7 @@ export default function SkripsiManagementPage() {
 
   return (
     <div className="space-y-6">
+      {loading && <LoadingOverlay message="Menyimpan data skripsi..." />}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Data Skripsi</h1>
@@ -380,7 +382,7 @@ export default function SkripsiManagementPage() {
               
               <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-2 bg-slate-50 rounded-b-2xl">
                 <Button variant="secondary" type="button" onClick={() => setIsModalOpen(false)} disabled={loading}>Batal</Button>
-                <Button type="submit" disabled={loading}>{loading ? "Menyimpan..." : "Simpan Data"}</Button>
+                <Button type="submit" disabled={loading}>Simpan Data</Button>
               </div>
             </form>
           </div>
