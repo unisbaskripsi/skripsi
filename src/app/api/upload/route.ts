@@ -46,6 +46,11 @@ export async function POST(req: NextRequest) {
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
       return NextResponse.json({ error: "Security Policy: Only PDF files are allowed" }, { status: 403 });
     }
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "Ukuran file maksimal adalah 10 MB" }, { status: 413 });
+    }
     // === END SECURITY CHECK ===
 
     const auth = getGoogleAuth();

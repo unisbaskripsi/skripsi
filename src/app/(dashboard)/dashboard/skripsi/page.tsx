@@ -128,6 +128,21 @@ export default function SkripsiManagementPage() {
     setData(data.map((d) => d.id === item.id ? { ...d, status: newStatus } : d));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Ukuran file maksimal adalah 10 MB. Silakan kompres file Anda.");
+        e.target.value = ""; // Reset input
+        setSelectedFile(null);
+        return;
+      }
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -347,7 +362,7 @@ export default function SkripsiManagementPage() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">File Skripsi (PDF)</label>
-                    <input type="file" accept=".pdf" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                    <input type="file" accept=".pdf" onChange={handleFileChange} className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
                     {editingItem?.gdrive_file_id && !selectedFile && (
                       <p className="text-xs text-slate-500 mt-1">File saat ini sudah ada. Biarkan kosong jika tidak ingin mengganti file.</p>
                     )}
