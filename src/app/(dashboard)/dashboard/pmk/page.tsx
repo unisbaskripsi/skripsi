@@ -117,8 +117,8 @@ export default function PMKManagementPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert("Ukuran file maksimal adalah 10 MB. Silakan kompres file Anda.");
+      if (file.size > 4 * 1024 * 1024) {
+        alert("Ukuran file maksimal adalah 4 MB. Silakan kompres file PDF Anda terlebih dahulu.");
         e.target.value = ""; // Reset input
         setSelectedFile(null);
         return;

@@ -47,9 +47,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Security Policy: Only PDF files are allowed" }, { status: 403 });
     }
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB (aman untuk Vercel Hobby Plan)
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: "Ukuran file maksimal adalah 10 MB" }, { status: 413 });
+      return NextResponse.json({ error: "Ukuran file maksimal adalah 4 MB" }, { status: 413 });
     }
     // === END SECURITY CHECK ===
 
