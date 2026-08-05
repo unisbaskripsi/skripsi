@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
       // Get Google Drive Access Token
       const { token } = await auth.getAccessToken();
 
+      // Get the origin from the incoming request to set CORS for Google Drive
+      const origin = req.headers.get("origin") || req.headers.get("referer") || "http://localhost:3000";
+
       // Request Resumable Session URL
       const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
         method: "POST",
@@ -68,6 +71,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
           "X-Upload-Content-Type": fileType,
           "X-Upload-Content-Length": fileSize?.toString() || "0",
+          "Origin": origin,
         },
         body: JSON.stringify({
           name: fileName,

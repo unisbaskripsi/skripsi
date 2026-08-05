@@ -148,96 +148,105 @@ export default function SkripsiManagementPage() {
     e.preventDefault();
     setLoading(true);
 
-    let gdrive_file_id = editingItem ? editingItem.gdrive_file_id : null;
+    try {
+      let gdrive_file_id = editingItem ? editingItem.gdrive_file_id : null;
 
-    if (selectedFile) {
-      const { data: { session: supabaseSession } } = await supabase.auth.getSession();
-      const token = supabaseSession?.access_token || "";
+      if (selectedFile) {
+        const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+        const token = supabaseSession?.access_token || "";
 
-      // Tahap 1: Minta Resumable Upload Session URL ke server
-      const initRes = await fetch("/api/upload", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ 
-          action: "init", 
-          fileName: selectedFile.name, 
-          fileType: selectedFile.type,
-          fileSize: selectedFile.size
-        }),
-      });
-      const initData = await initRes.json();
-      
-      if (!initData.success || !initData.uploadUrl) {
-        alert("Gagal menginisiasi upload ke Google Drive: " + (initData.error || "Unknown error"));
-        setLoading(false);
-        return;
+        // Tahap 1: Minta Resumable Upload Session URL ke server
+        const initRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ 
+            action: "init", 
+            fileName: selectedFile.name, 
+            fileType: selectedFile.type,
+            fileSize: selectedFile.size
+          }),
+        });
+        const initData = await initRes.json();
+        
+        if (!initData.success || !initData.uploadUrl) {
+          throw new Error("Gagal menginisiasi upload ke Google Drive: " + (initData.error || "Unknown error"));
+        }
+
+        // Tahap 2: Upload file langsung ke URL Google Drive (Bypass Vercel)
+        const uploadRes = await fetch(initData.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": selectedFile.type
+          },
+          body: selectedFile
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error("Gagal mengupload file secara langsung ke Google Drive.");
+        }
+
+        let uploadData;
+        try {
+          uploadData = await uploadRes.json();
+        } catch (err) {
+          throw new Error("Gagal membaca respons dari Google Drive.");
+        }
+
+        const fileId = uploadData?.id;
+        if (!fileId) {
+          throw new Error("File ID tidak ditemukan setelah upload.");
+        }
+
+        // Tahap 3: Kirim fileId ke server untuk setting permissions dan mendapatkan webViewLink
+        const finalizeRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ action: "finalize", fileId }),
+        });
+        const finalizeData = await finalizeRes.json();
+
+        if (finalizeData.success) {
+          gdrive_file_id = finalizeData.webViewLink;
+        } else {
+          throw new Error("Gagal menyelesaikan upload (set permissions): " + finalizeData.error);
+        }
       }
 
-      // Tahap 2: Upload file langsung ke URL Google Drive (Bypass Vercel)
-      const uploadRes = await fetch(initData.uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": selectedFile.type
-        },
-        body: selectedFile
-      });
+      const payload = {
+        nim,
+        nama_mahasiswa: nama,
+        fakultas: "Ekonomi",
+        prodi,
+        angkatan,
+        tahun,
+        judul,
+        pembimbing_1: pembimbing1,
+        pembimbing_2: pembimbing2,
+        status,
+        user_id: session?.id,
+        gdrive_file_id
+      };
 
-      if (!uploadRes.ok) {
-        alert("Gagal mengupload file secara langsung ke Google Drive.");
-        setLoading(false);
-        return;
-      }
-
-      const uploadData = await uploadRes.json();
-      const fileId = uploadData.id;
-
-      // Tahap 3: Kirim fileId ke server untuk setting permissions dan mendapatkan webViewLink
-      const finalizeRes = await fetch("/api/upload", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ action: "finalize", fileId }),
-      });
-      const finalizeData = await finalizeRes.json();
-
-      if (finalizeData.success) {
-        gdrive_file_id = finalizeData.webViewLink;
+      if (editingItem) {
+        await supabase.from("skripsi_documents").update(payload).eq("id", editingItem.id);
       } else {
-        alert("Gagal menyelesaikan upload (set permissions): " + finalizeData.error);
-        setLoading(false);
-        return;
+        await supabase.from("skripsi_documents").insert([payload]);
       }
+      
+      if (session) fetchData(session);
+      setIsModalOpen(false);
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || "Terjadi kesalahan saat menyimpan data.");
+    } finally {
+      setLoading(false);
     }
-
-    const payload = {
-      nim,
-      nama_mahasiswa: nama,
-      fakultas: "Ekonomi",
-      prodi,
-      angkatan,
-      tahun,
-      judul,
-      pembimbing_1: pembimbing1,
-      pembimbing_2: pembimbing2,
-      status,
-      user_id: session?.id,
-      gdrive_file_id
-    };
-
-    if (editingItem) {
-      await supabase.from("skripsi_documents").update(payload).eq("id", editingItem.id);
-    } else {
-      await supabase.from("skripsi_documents").insert([payload]);
-    }
-    
-    if (session) fetchData(session);
-    setLoading(false);
-    setIsModalOpen(false);
   };
 
   const filtered = data.filter((item) => {
